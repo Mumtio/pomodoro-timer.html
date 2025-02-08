@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pomodoro Forest</title>
+    <title>Pomodoro Forest 🌸</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Fredoka+One&display=swap');
+
         * {
             font-family: "Poppins", sans-serif;
             text-align: center;
@@ -16,18 +18,24 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #ffe4e1;
+            background: linear-gradient(135deg, #ffdde1, #ee9ca7);
         }
 
         h1 {
             color: #ff69b4;
-            font-size: 26px;
+            font-size: 28px;
+            font-family: "Fredoka One", cursive;
+            padding: 10px 20px;
+            border-radius: 20px;
+            background: white;
+            box-shadow: 0px 4px 10px rgba(255, 105, 180, 0.3);
         }
 
         .timer-container {
             position: relative;
-            width: 200px;
-            height: 200px;
+            width: 220px;
+            height: 220px;
+            margin-top: 20px;
         }
 
         .circle {
@@ -43,29 +51,39 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 24px;
+            font-size: 26px;
+            font-weight: bold;
             color: #ff69b4;
         }
 
         #tree {
-            width: 150px;
+            width: 120px;
             margin-top: 20px;
             transition: opacity 1s ease-in-out;
+            filter: drop-shadow(0px 6px 10px rgba(0, 0, 0, 0.2));
         }
 
-        button {
-            background-color: #ff69b4;
-            border: none;
-            color: white;
-            padding: 10px 15px;
-            font-size: 16px;
-            border-radius: 10px;
-            cursor: pointer;
+        .button-container {
             margin-top: 15px;
         }
 
+        button {
+            background: linear-gradient(135deg, #ff85a2, #ff4081);
+            border: none;
+            color: white;
+            padding: 12px 18px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0px 4px 8px rgba(255, 105, 180, 0.3);
+        }
+
         button:hover {
-            background-color: #ff1493;
+            transform: scale(1.1);
+            box-shadow: 0px 6px 12px rgba(255, 105, 180, 0.5);
         }
     </style>
 </head>
@@ -73,16 +91,18 @@
 
     <h1>🎀 Pomodoro Forest 🎀</h1>
     <div class="timer-container">
-        <svg width="200" height="200">
-            <circle cx="100" cy="100" r="90" stroke="#ff69b4" stroke-width="10" fill="none" class="circle"/>
+        <svg width="220" height="220">
+            <circle cx="110" cy="110" r="100" stroke="#ff69b4" stroke-width="10" fill="none" class="circle"/>
         </svg>
         <div class="time" id="timer">25:00</div>
     </div>
 
-    <img id="tree" src="https://i.imgur.com/JGndbcU.png" alt="Tree" style="opacity: 1;">
+    <img id="tree" src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Tree_animated.gif" alt="Tree" style="opacity: 0.2;">
     
-    <button id="start">Start</button>
-    <button id="reset">Reset</button>
+    <div class="button-container">
+        <button id="start">🌱 Start</button>
+        <button id="reset">💔 Reset</button>
+    </div>
 
     <script>
         let timerDisplay = document.getElementById("timer");
@@ -92,15 +112,8 @@
         let timeLeft = 25 * 60;
         let interval;
         let running = false;
-        let totalLength = 2 * Math.PI * 90;
+        let totalLength = 2 * Math.PI * 100;
         let circle = document.querySelector(".circle");
-
-        const treeStages = {
-            start: "https://i.imgur.com/JGndbcU.png",  // 🌱 Sprout
-            half: "https://i.imgur.com/nH7W1pD.png",   // 🌿 Halfway tree
-            full: "https://i.imgur.com/k6URj6K.png",   // 🌳 Full tree
-            dead: "https://i.imgur.com/fVjYlKj.png"    // 💀 Dead tree
-        };
 
         function updateTimerDisplay() {
             let minutes = Math.floor(timeLeft / 60);
@@ -109,29 +122,27 @@
             let progress = (timeLeft / (25 * 60)) * totalLength;
             circle.style.strokeDashoffset = totalLength - progress;
 
-            // Update tree growth stages based on time left
             if (timeLeft <= 25 * 30) {
-                tree.src = treeStages.half;  // Halfway 🌿
+                tree.style.opacity = 0.6; // Half-grown 🌿
             }
             if (timeLeft <= 10) {
-                tree.src = treeStages.full;  // Full tree 🌳
+                tree.style.opacity = 1; // Full-grown 🌳
             }
         }
 
         function startTimer() {
             if (!running) {
                 running = true;
-                tree.src = treeStages.start; // Reset to sprout 🌱
+                tree.style.opacity = 0.2;
                 interval = setInterval(() => {
                     if (timeLeft > 0) {
                         timeLeft--;
                         updateTimerDisplay();
                     } else {
                         clearInterval(interval);
-                        alert("🍓 Pomodoro complete! Your tree has fully grown! 🌳");
+                        alert("🎉 Pomodoro complete! Your tree has fully grown! 🌳");
                         running = false;
-                        tree.src = treeStages.full;
-                        saveToNotion(true);
+                        tree.style.opacity = 1;
                     }
                 }, 1000);
             }
@@ -141,34 +152,8 @@
             clearInterval(interval);
             timeLeft = 25 * 60;
             running = false;
-            tree.src = treeStages.dead; // Dead tree 💀
+            tree.style.opacity = 0.2;
             updateTimerDisplay();
-            saveToNotion(false);
-        }
-
-        function saveToNotion(completed) {
-            fetch("https://api.notion.com/v1/pages", {
-                method: "POST",
-                headers: {
-                    "Authorization": "Bearer secret_xxxxxx",  // Replace with your Notion API Key
-                    "Notion-Version": "2022-06-28",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    "parent": { "database_id": "your_database_id" },  // Replace with your Notion DB ID
-                    "properties": {
-                        "Title": { "title": [{ "text": { "content": "Pomodoro Session" } }] },
-                        "Status": { "select": { "name": completed ? "Completed" : "Abandoned" } },
-                        "Date": { "date": { "start": new Date().toISOString() } }
-                    }
-                })
-            }).then(response => {
-                if (response.ok) {
-                    console.log("✅ Pomodoro saved to Notion!");
-                } else {
-                    console.log("❌ Failed to save:", response.statusText);
-                }
-            });
         }
 
         startButton.addEventListener("click", startTimer);
