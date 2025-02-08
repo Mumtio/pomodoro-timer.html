@@ -57,10 +57,11 @@
         }
 
         #tree {
-            width: 120px;
+            width: 80px;
             margin-top: 20px;
-            transition: opacity 1s ease-in-out;
+            transition: transform 1s ease-in-out;
             filter: drop-shadow(0px 6px 10px rgba(0, 0, 0, 0.2));
+            display: block; /* Ensure visibility */
         }
 
         .button-container {
@@ -128,7 +129,8 @@
         <div class="time" id="timer">25:00</div>
     </div>
 
-    <img id="tree" src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Tree_animated.gif" alt="Tree" style="opacity: 0.2;">
+    <!-- FIXED: Using a working animated tree -->
+    <img id="tree" src="https://upload.wikimedia.org/wikipedia/commons/3/36/Morphing_tree.gif" alt="Tree">
     
     <div class="button-container">
         <button id="start">🌱 Start</button>
@@ -154,18 +156,22 @@
             let progress = (timeLeft / (25 * 60)) * totalLength;
             circle.style.strokeDashoffset = totalLength - progress;
 
-            if (timeLeft <= timeLeft / 2) {
-                tree.style.opacity = 0.6; // Half-grown 🌿
+            // Animate tree growth stages based on time left
+            if (timeLeft >= timeLeft * 0.8) {
+                tree.style.transform = "scale(0.5)"; // Tiny sprout 🌱
             }
-            if (timeLeft <= 10) {
-                tree.style.opacity = 1; // Full-grown 🌳
+            if (timeLeft < timeLeft * 0.6) {
+                tree.style.transform = "scale(0.7)"; // Half-grown 🌿
+            }
+            if (timeLeft < timeLeft * 0.3) {
+                tree.style.transform = "scale(1)"; // Fully grown 🌳
             }
         }
 
         function startTimer() {
             if (!running) {
                 running = true;
-                tree.style.opacity = 0.2;
+                tree.style.transform = "scale(0.5)";
                 interval = setInterval(() => {
                     if (timeLeft > 0) {
                         timeLeft--;
@@ -174,7 +180,7 @@
                         clearInterval(interval);
                         alert("🎉 Pomodoro complete! Your tree has fully grown! 🌳");
                         running = false;
-                        tree.style.opacity = 1;
+                        tree.style.transform = "scale(1.2)";
                     }
                 }, 1000);
             }
@@ -184,7 +190,7 @@
             clearInterval(interval);
             timeLeft = parseInt(timeSelect.value) * 60;
             running = false;
-            tree.style.opacity = 0.2;
+            tree.style.transform = "scale(0.5)"; // Reset to tiny sprout
             updateTimerDisplay();
         }
 
