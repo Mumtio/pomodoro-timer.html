@@ -23,7 +23,7 @@
 
         h1 {
             color: #ff69b4;
-            font-size: 28px;
+            font-size: 26px;
             font-family: "Fredoka One", cursive;
             padding: 10px 20px;
             border-radius: 20px;
@@ -85,11 +85,42 @@
             transform: scale(1.1);
             box-shadow: 0px 6px 12px rgba(255, 105, 180, 0.5);
         }
+
+        .settings {
+            margin-top: 15px;
+            background: white;
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 10px rgba(255, 105, 180, 0.3);
+        }
+
+        select {
+            border: none;
+            background: #ff85a2;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
 
     <h1>🎀 Pomodoro Forest 🎀</h1>
+
+    <div class="settings">
+        <label for="timeSelect">⏳ Choose Time: </label>
+        <select id="timeSelect">
+            <option value="25">25 min</option>
+            <option value="15">15 min</option>
+            <option value="10">10 min</option>
+            <option value="5">5 min</option>
+        </select>
+    </div>
+
     <div class="timer-container">
         <svg width="220" height="220">
             <circle cx="110" cy="110" r="100" stroke="#ff69b4" stroke-width="10" fill="none" class="circle"/>
@@ -108,6 +139,7 @@
         let timerDisplay = document.getElementById("timer");
         let startButton = document.getElementById("start");
         let resetButton = document.getElementById("reset");
+        let timeSelect = document.getElementById("timeSelect");
         let tree = document.getElementById("tree");
         let timeLeft = 25 * 60;
         let interval;
@@ -122,7 +154,7 @@
             let progress = (timeLeft / (25 * 60)) * totalLength;
             circle.style.strokeDashoffset = totalLength - progress;
 
-            if (timeLeft <= 25 * 30) {
+            if (timeLeft <= timeLeft / 2) {
                 tree.style.opacity = 0.6; // Half-grown 🌿
             }
             if (timeLeft <= 10) {
@@ -150,11 +182,16 @@
 
         function resetTimer() {
             clearInterval(interval);
-            timeLeft = 25 * 60;
+            timeLeft = parseInt(timeSelect.value) * 60;
             running = false;
             tree.style.opacity = 0.2;
             updateTimerDisplay();
         }
+
+        timeSelect.addEventListener("change", () => {
+            timeLeft = parseInt(timeSelect.value) * 60;
+            updateTimerDisplay();
+        });
 
         startButton.addEventListener("click", startTimer);
         resetButton.addEventListener("click", resetTimer);
