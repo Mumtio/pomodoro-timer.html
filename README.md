@@ -48,9 +48,9 @@
         }
 
         #tree {
-            width: 120px;
+            width: 150px;
             margin-top: 20px;
-            transition: opacity 0.5s ease-in-out;
+            transition: opacity 1s ease-in-out;
         }
 
         button {
@@ -79,7 +79,7 @@
         <div class="time" id="timer">25:00</div>
     </div>
 
-    <img id="tree" src="https://i.imgur.com/k6URj6K.png" alt="Tree" style="opacity: 0.2;">
+    <img id="tree" src="https://i.imgur.com/JGndbcU.png" alt="Tree" style="opacity: 1;">
     
     <button id="start">Start</button>
     <button id="reset">Reset</button>
@@ -95,26 +95,42 @@
         let totalLength = 2 * Math.PI * 90;
         let circle = document.querySelector(".circle");
 
+        const treeStages = {
+            start: "https://i.imgur.com/JGndbcU.png",  // 🌱 Sprout
+            half: "https://i.imgur.com/nH7W1pD.png",   // 🌿 Halfway tree
+            full: "https://i.imgur.com/k6URj6K.png",   // 🌳 Full tree
+            dead: "https://i.imgur.com/fVjYlKj.png"    // 💀 Dead tree
+        };
+
         function updateTimerDisplay() {
             let minutes = Math.floor(timeLeft / 60);
             let seconds = timeLeft % 60;
             timerDisplay.innerHTML = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
             let progress = (timeLeft / (25 * 60)) * totalLength;
             circle.style.strokeDashoffset = totalLength - progress;
+
+            // Update tree growth stages based on time left
+            if (timeLeft <= 25 * 30) {
+                tree.src = treeStages.half;  // Halfway 🌿
+            }
+            if (timeLeft <= 10) {
+                tree.src = treeStages.full;  // Full tree 🌳
+            }
         }
 
         function startTimer() {
             if (!running) {
                 running = true;
-                tree.style.opacity = 1; // Tree starts growing
+                tree.src = treeStages.start; // Reset to sprout 🌱
                 interval = setInterval(() => {
                     if (timeLeft > 0) {
                         timeLeft--;
                         updateTimerDisplay();
                     } else {
                         clearInterval(interval);
-                        alert("🍓 Pomodoro complete! Your tree has grown! 🌳");
+                        alert("🍓 Pomodoro complete! Your tree has fully grown! 🌳");
                         running = false;
+                        tree.src = treeStages.full;
                         saveToNotion(true);
                     }
                 }, 1000);
@@ -125,7 +141,7 @@
             clearInterval(interval);
             timeLeft = 25 * 60;
             running = false;
-            tree.style.opacity = 0.2; // Tree disappears if reset
+            tree.src = treeStages.dead; // Dead tree 💀
             updateTimerDisplay();
             saveToNotion(false);
         }
