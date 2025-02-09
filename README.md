@@ -24,7 +24,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            transition: background 0.3s ease, color 0.3s ease;
+            transition: all 0.3s ease-in-out;
         }
 
         body {
@@ -49,6 +49,9 @@
             max-width: 350px;
             width: 90%;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .dark-mode .card {
@@ -83,7 +86,9 @@
             overflow: hidden;
             border-radius: 50%;
             border: 4px solid var(--text-light);
-            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .dark-mode .timer-container {
@@ -164,6 +169,8 @@
 
         .button-container {
             margin-top: 15px;
+            display: flex;
+            gap: 10px;
         }
 
         button {
@@ -175,7 +182,6 @@
             font-weight: bold;
             border-radius: 50px;
             cursor: pointer;
-            margin: 5px;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             box-shadow: 0px 4px 8px rgba(255, 105, 180, 0.3);
         }
@@ -229,7 +235,7 @@
         let resetButton = document.getElementById("reset");
         let customTime = document.getElementById("customTime");
         let water = document.getElementById("water");
-        let timeLeft = 25 * 60;
+        let timeLeft;
         let interval;
         let running = false;
 
@@ -243,7 +249,26 @@
             water.style.height = `${100 - (timeLeft / (parseInt(customTime.value) * 60) * 100)}%`;
         }
 
+        function startTimer() {
+            if (!running) {
+                running = true;
+                timeLeft = parseInt(customTime.value) * 60;
+                interval = setInterval(() => {
+                    if (timeLeft > 0) {
+                        timeLeft--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(interval);
+                        running = false;
+                    }
+                }, 1000);
+            }
+        }
+
         function toggleMode() { document.body.classList.toggle("dark-mode"); }
+
+        startButton.addEventListener("click", startTimer);
+        resetButton.addEventListener("click", () => location.reload());
     </script>
 
 </body>
