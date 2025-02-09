@@ -7,12 +7,24 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Pacifico&display=swap');
 
+        :root {
+            --bg-light: #f8d7e8;
+            --bg-dark: #2d2d2d;
+            --card-light: white;
+            --card-dark: #444;
+            --text-light: #ff7fa3;
+            --text-dark: #ffd1dc;
+            --water-light: #98d8f4;
+            --water-dark: #2b6cb0;
+        }
+
         * {
             font-family: "Quicksand", sans-serif;
             text-align: center;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         body {
@@ -21,11 +33,16 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(135deg, #f8d7e8, #f0e2ff);
+            background: var(--bg-light);
+        }
+
+        .dark-mode {
+            background: var(--bg-dark);
+            color: var(--text-dark);
         }
 
         .card {
-            background: white;
+            background: var(--card-light);
             padding: 20px;
             border-radius: 20px;
             box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
@@ -34,22 +51,20 @@
             position: relative;
         }
 
-        .washi-tape {
-            width: 80px;
-            height: 30px;
-            background: url("https://i.imgur.com/bmGfBdM.png") no-repeat center/cover;
-            position: absolute;
-            top: -10px;
-            left: 20px;
-            transform: rotate(-10deg);
+        .dark-mode .card {
+            background: var(--card-dark);
         }
 
         .title {
             font-size: 22px;
             font-weight: bold;
-            color: #ff7fa3;
+            color: var(--text-light);
             font-family: "Pacifico", cursive;
             margin-bottom: 10px;
+        }
+
+        .dark-mode .title {
+            color: var(--text-dark);
         }
 
         .settings {
@@ -65,34 +80,76 @@
             width: 180px;
             height: 180px;
             margin: 20px auto;
+            overflow: hidden;
+            border-radius: 50%;
+            border: 4px solid var(--text-light);
+            position: relative;
         }
 
-        .circle {
-            stroke-dasharray: 565.48;
-            stroke-dashoffset: 565.48;
-            transition: stroke-dashoffset 1s linear;
+        .dark-mode .timer-container {
+            border: 4px solid var(--text-dark);
         }
 
         .water {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to top, #98d8f4, #d1f3ff);
+            width: 200%;
+            height: 0%;
+            background: linear-gradient(to top, var(--water-light), #d1f3ff);
             position: absolute;
             bottom: 0;
+            left: -50%;
             border-radius: 50%;
-            transition: height 1s linear;
+            animation: wave 2s infinite linear;
         }
 
-        .time {
+        .dark-mode .water {
+            background: linear-gradient(to top, var(--water-dark), #6095c2);
+        }
+
+        @keyframes wave {
+            0% { transform: translateX(0px); }
+            50% { transform: translateX(20px); }
+            100% { transform: translateX(0px); }
+        }
+
+        .flip-card {
+            perspective: 1000px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100px;
+            height: 50px;
+            transform-style: preserve-3d;
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .flip-card-front, .flip-card-back {
             position: absolute;
             width: 100%;
             height: 100%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 26px;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
             font-weight: bold;
-            color: #ff7fa3;
+            color: var(--text-light);
+            background: var(--card-light);
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .flip-card-front, .dark-mode .flip-card-back {
+            background: var(--card-dark);
+            color: var(--text-dark);
+        }
+
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+
+        .flip {
+            transform: rotateY(180deg);
         }
 
         input {
@@ -127,12 +184,21 @@
             transform: scale(1.1);
             box-shadow: 0px 6px 12px rgba(255, 105, 180, 0.5);
         }
+
+        .toggle-mode {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
 
+    <div class="toggle-mode" onclick="toggleMode()">🌙</div>
+
     <div class="card">
-        <div class="washi-tape"></div>
         <div class="title">🌸 Pomodoro Timer 🌸</div>
 
         <div class="settings">
@@ -141,7 +207,12 @@
 
         <div class="timer-container">
             <div class="water" id="water"></div>
-            <div class="time" id="timer">25:00</div>
+            <div class="flip-card">
+                <div class="flip-card-inner" id="flip-card">
+                    <div class="flip-card-front" id="timer-front">25:00</div>
+                    <div class="flip-card-back" id="timer-back">25:00</div>
+                </div>
+            </div>
         </div>
 
         <div class="button-container">
@@ -151,7 +222,9 @@
     </div>
 
     <script>
-        let timerDisplay = document.getElementById("timer");
+        let timerDisplayFront = document.getElementById("timer-front");
+        let timerDisplayBack = document.getElementById("timer-back");
+        let flipCard = document.getElementById("flip-card");
         let startButton = document.getElementById("start");
         let resetButton = document.getElementById("reset");
         let customTime = document.getElementById("customTime");
@@ -159,51 +232,18 @@
         let timeLeft = 25 * 60;
         let interval;
         let running = false;
-        let totalLength = 2 * Math.PI * 100;
 
         function updateTimerDisplay() {
             let minutes = Math.floor(timeLeft / 60);
             let seconds = timeLeft % 60;
-            timerDisplay.innerHTML = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-
-            let progress = (timeLeft / (parseInt(customTime.value) * 60)) * 100;
-            water.style.height = `${100 - progress}%`; // Water fills up
+            let displayTime = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+            timerDisplayFront.innerHTML = displayTime;
+            timerDisplayBack.innerHTML = displayTime;
+            flipCard.classList.toggle("flip");
+            water.style.height = `${100 - (timeLeft / (parseInt(customTime.value) * 60) * 100)}%`;
         }
 
-        function startTimer() {
-            if (!running) {
-                running = true;
-                timeLeft = parseInt(customTime.value) * 60;
-                interval = setInterval(() => {
-                    if (timeLeft > 0) {
-                        timeLeft--;
-                        updateTimerDisplay();
-                    } else {
-                        clearInterval(interval);
-                        alert("🎉 Pomodoro complete! You did it! 🌟");
-                        running = false;
-                        water.style.height = "100%"; // Fully filled water
-                    }
-                }, 1000);
-            }
-        }
-
-        function resetTimer() {
-            clearInterval(interval);
-            timeLeft = parseInt(customTime.value) * 60;
-            running = false;
-            water.style.height = "0%";
-            updateTimerDisplay();
-        }
-
-        customTime.addEventListener("change", () => {
-            timeLeft = parseInt(customTime.value) * 60;
-            updateTimerDisplay();
-        });
-
-        startButton.addEventListener("click", startTimer);
-        resetButton.addEventListener("click", resetTimer);
-        updateTimerDisplay();
+        function toggleMode() { document.body.classList.toggle("dark-mode"); }
     </script>
 
 </body>
