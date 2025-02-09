@@ -8,8 +8,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Pacifico&display=swap');
 
         :root {
-            --bg-light: #f8d7e8;
-            --bg-dark: #2d2d2d;
+            --bg-light: linear-gradient(135deg, #f8d7e8, #f0e2ff);
+            --bg-dark: linear-gradient(135deg, #1e1e1e, #3a3a3a);
             --card-light: white;
             --card-dark: #444;
             --text-light: #ff7fa3;
@@ -48,7 +48,6 @@
             box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
             max-width: 350px;
             width: 90%;
-            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -118,12 +117,15 @@
 
         .flip-card {
             perspective: 1000px;
+            position: absolute;
+            width: 100px;
+            height: 50px;
         }
 
         .flip-card-inner {
             position: relative;
-            width: 100px;
-            height: 50px;
+            width: 100%;
+            height: 100%;
             transform-style: preserve-3d;
             transition: transform 0.6s ease-in-out;
         }
@@ -228,47 +230,27 @@
     </div>
 
     <script>
-        let timerDisplayFront = document.getElementById("timer-front");
-        let timerDisplayBack = document.getElementById("timer-back");
-        let flipCard = document.getElementById("flip-card");
-        let startButton = document.getElementById("start");
-        let resetButton = document.getElementById("reset");
-        let customTime = document.getElementById("customTime");
-        let water = document.getElementById("water");
-        let timeLeft;
-        let interval;
-        let running = false;
+        let timeLeft, interval, running = false;
+        const timerFront = document.getElementById("timer-front");
+        const timerBack = document.getElementById("timer-back");
+        const flipCard = document.getElementById("flip-card");
+        const startButton = document.getElementById("start");
+        const resetButton = document.getElementById("reset");
+        const customTime = document.getElementById("customTime");
+        const water = document.getElementById("water");
 
-        function updateTimerDisplay() {
+        function updateTimer() {
             let minutes = Math.floor(timeLeft / 60);
             let seconds = timeLeft % 60;
             let displayTime = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-            timerDisplayFront.innerHTML = displayTime;
-            timerDisplayBack.innerHTML = displayTime;
+            timerFront.innerText = timerBack.innerText = displayTime;
             flipCard.classList.toggle("flip");
-            water.style.height = `${100 - (timeLeft / (parseInt(customTime.value) * 60) * 100)}%`;
+            water.style.height = `${100 - (timeLeft / (customTime.value * 60)) * 100}%`;
         }
 
-        function startTimer() {
-            if (!running) {
-                running = true;
-                timeLeft = parseInt(customTime.value) * 60;
-                interval = setInterval(() => {
-                    if (timeLeft > 0) {
-                        timeLeft--;
-                        updateTimerDisplay();
-                    } else {
-                        clearInterval(interval);
-                        running = false;
-                    }
-                }, 1000);
-            }
-        }
-
+        startButton.onclick = () => { if (!running) running = !!(interval = setInterval(() => (timeLeft ? timeLeft-- : clearInterval(interval)), 1000)); };
+        resetButton.onclick = () => location.reload();
         function toggleMode() { document.body.classList.toggle("dark-mode"); }
-
-        startButton.addEventListener("click", startTimer);
-        resetButton.addEventListener("click", () => location.reload());
     </script>
 
 </body>
